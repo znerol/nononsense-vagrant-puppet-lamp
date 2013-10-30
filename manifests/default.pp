@@ -4,35 +4,33 @@
 exec { "apt-update":
     command => "/usr/bin/apt-get update"
 }
-
 Exec["apt-update"] -> Package <| |>
 
 
-## GENERIC PACKAGES
-package {[
-  "augeas-tools",
-  "augeas-lenses",
-  "libaugeas-ruby"]:
-  ensure => latest
+## DOT DEB SOURCES
+exec { "install-dotdeb-key":
+  command => "/usr/bin/wget -O- http://www.dotdeb.org/dotdeb.gpg | /usr/bin/apt-key add -",
+  notify => Exec["apt-update"]
 }
+
+file { "/etc/apt/sources.list.d/dotdeb.list":
+  ensure => present,
+  source => "/vagrant/config/dotdeb.list",
+  notify => Exec["install-dotdeb-key"]
+}
+File["/etc/apt/sources.list.d/dotdeb.list"] -> Package <| |>
 
 
 ## LAMP PACKAGES
 package {[
   "apache2",
   "libapache2-mod-php5",
-  "libapache2-mod-upload-progress",
   "mysql-client",
   "mysql-server",
   "php-apc",
-  "php-pear",
   "php5",
-  "php5-cli",
-  "php5-dev",
   "php5-gd",
   "php5-mysql",
-  "php5-sqlite",
-  "php5-xdebug",
   "php5-xsl",
   "phpmyadmin"]:
   ensure => latest
@@ -55,16 +53,16 @@ file { "/etc/apache2/sites-enabled/100-localhost-8080.conf":
   source => "/vagrant/config/apache-localhost-8080.conf",
   notify => Service["apache2"],
   require => [
-    File["/srv/cgi-bin"],
-    File["/srv/htdocs"],
-    File["/srv/log/apache2"],
+    File["/data/cgi-bin"],
+    File["/data/htdocs"],
+    File["/data/log/apache2"],
   ],
 }
 file { [
-    "/srv/cgi-bin",
-    "/srv/htdocs",
-    "/srv/log",
-    "/srv/log/apache2"]:
+    "/data/cgi-bin",
+    "/data/htdocs",
+    "/data/log",
+    "/data/log/apache2"]:
   ensure => directory,
   mode => 0775,
 }
@@ -80,7 +78,6 @@ file { "/etc/apache2/mods-enabled/php5.conf":
   require => Package["apache2"],
   notify => Service["apache2"],
 }
-
 file { "/etc/apache2/mods-enabled/rewrite.load":
   ensure => link,
   target => "/etc/apache2/mods-available/rewrite.load",
