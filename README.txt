@@ -1,5 +1,5 @@
-No-nonsense LAMP setup
-======================
+No-nonsense vagrant+puppet LAMP setup
+=====================================
 
 Apache
 ------
@@ -27,6 +27,13 @@ MySQL
 -----
 * No root password.
 * phpmyadmin in http://localhost:8080/phpmyadmin
-* Tip: Place dump files into data-directory on host-system and then use
-  vagrant command line to load them:
-  vagrant ssh -c "zcat /data/dbname.mysql.gz | mysql -uroot dbname"
+* Tip: Link your dump files into data/mysql-restore and trigger the
+  provisioning. The basename of the dump-file will be used as the target
+  database name. Keep extensions (like .bz2 and .gz), they will be used to
+  determine which decompression tool to use. Example:
+
+    ln -s /full/path/to/my/dump.sql.gz data/mysql-restore/mydb-42.gz
+    vagrant provision
+
+  The whole mysql database `mydb_42` will be replaced with the contents of the
+  dump file. After successful completion, the dump file will be removed!

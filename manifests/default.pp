@@ -10,7 +10,8 @@ Exec["apt-update"] -> Package <| |>
 ## DOT DEB SOURCES
 exec { "install-dotdeb-key":
   command => "/usr/bin/wget -O- http://www.dotdeb.org/dotdeb.gpg | /usr/bin/apt-key add -",
-  notify => Exec["apt-update"]
+  refreshonly => true,
+  notify => Exec["apt-update"],
 }
 
 file { "/etc/apt/sources.list.d/dotdeb.list":
@@ -107,4 +108,11 @@ file { "/var/lib/phpmyadmin/config.inc.php":
   source => "/vagrant/config/phpmyadmin-overrides.inc.php",
   require => Package["phpmyadmin"],
   notify => Service["apache2"],
+}
+
+
+## PHP DATABASES
+exec { "mysql-restore":
+  command => "/vagrant/scripts/mysql-restore.py /data/mysql-restore",
+  require => [Package["mysql-server"], Package["mysql-client"]],
 }
