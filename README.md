@@ -1,21 +1,33 @@
-No-nonsense vagrant+puppet LAMP setup
-=====================================
+No-nonsense vagrant+puppet LAMP
+===============================
+
+A Linux/Apache/MySQL/PHP server setup for development and testing purposes
+based on Vagrant and Puppet which just works. **Do not use this for production
+systems.**
 
 Apache
 ------
-* Mount data to /data using NFS (user:vagrant, group:vagrant)
+* Mount data to `/data` using NFS (user:vagrant, group:vagrant)
 * Add user www-data to vagrant group
-  -> no fussing around with permissions
-* Set apache document root to /data/htdocs
-* Set log-location to /data/log/apache2
+  
+  *✓ no need to tweak file and directory permissions in document root*
+
+* Set apache document root to `/data/htdocs`
+* Set log-location to `/data/log/apache2`
 * No virtual-host support
-  -> no messing around with hosts-file
+
+  *✓ no messing around with hosts-file*
+
 * Run apache on port 8080, also add forwarding
-  -> http://localhost:8080/
+  http://localhost:8080/
+
+  *✓ make applications happy which insist on initiating loopback connections - e.g., Drupal*
+
 * PHP info in http://localhost:8080/info.php
 * APC tool in http://localhost:8080/apc.php
 * Tip: Follow the apache error-log in the host system:
-  tail -f log/apache2/error.log
+
+      `tail -f log/apache2/error.log`
 
 PHP
 ---
@@ -27,13 +39,13 @@ MySQL
 -----
 * No root password.
 * phpmyadmin in http://localhost:8080/phpmyadmin
-* Tip: Link your dump files into data/mysql-restore and trigger the
+* Tip: Link your dump files into `data/mysql-restore` and trigger the
   provisioning. The basename of the dump-file will be used as the target
   database name. Keep extensions (like .bz2 and .gz), they will be used to
   determine which decompression tool to use. Example:
 
-    ln -s /full/path/to/my/dump.sql.gz data/mysql-restore/mydb-42.gz
-    vagrant provision
+      ln -s /full/path/to/my/dump.sql.gz data/mysql-restore/mydb-42.gz
+      vagrant provision
 
   The whole mysql database `mydb_42` will be replaced with the contents of the
   dump file. After successful completion, the dump file will be removed!
